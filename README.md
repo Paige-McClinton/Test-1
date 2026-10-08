@@ -17,6 +17,13 @@ Trips are stored in [Supabase](https://supabase.com). Each person signs in with 
 
 New accounts must confirm their email by default. To skip that while testing, turn off **Authentication → Sign In / Providers → Email → Confirm email**.
 
+## Live website (GitHub Pages)
+
+Every push to `main` builds the web version and publishes it to
+https://paige-mcclinton.github.io/Test-1/ (see `.github/workflows/deploy-pages.yml`).
+One-time setup: repo **Settings → Pages → Source: GitHub Actions**, and add the site URL in
+Supabase under **Authentication → URL Configuration**.
+
 ## Run it on your phone
 
 1. Install [Node.js](https://nodejs.org) (the LTS version).

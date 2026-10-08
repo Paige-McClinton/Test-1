@@ -1,0 +1,53 @@
+name: Deploy web app to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # lets you re-run it from the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build the web version
+        run: npx expo export --platform web
+        env:
+          EXPO_BASE_URL: /${{ github.event.repository.name }}
+          # The publishable key is meant to be public (it ends up in the website either way);
+          # Row Level Security in Supabase is what keeps each user's trips private.
+          EXPO_PUBLIC_SUPABASE_URL: https://ovximfooogfvxbfjeydd.supabase.co
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_ZHFdWD-3OJGf3iv2cuSYVA_rPRyd48k
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
