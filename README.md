@@ -7,7 +7,7 @@ A mobile travel planning app built with [Expo](https://expo.dev) and React Nativ
 - **Packing list** — check items off as you pack, grouped by category, with a one-tap essentials list
 - **Destination guide** — an overview of the place plus notes for must-sees, food, getting around and tips
 
-Trips are stored in [Supabase](https://supabase.com). Each person signs in with email and only sees their own trips, synced across phone and browser.
+Trips are stored in [Supabase](https://supabase.com). Each person signs in with GitHub and only sees their own trips, synced across phone and browser.
 
 ## Connect Supabase (one time)
 
@@ -15,7 +15,10 @@ Trips are stored in [Supabase](https://supabase.com). Each person signs in with 
 2. Copy `.env.example` to `.env.local` and fill in your project URL and anon (publishable) key from **Project Settings → API**. `.env.local` is git-ignored.
 3. Restart the app (`Ctrl + C`, then `npx expo start`).
 
-New accounts must confirm their email by default. To skip that while testing, turn off **Authentication → Sign In / Providers → Email → Confirm email**.
+Sign-in uses GitHub. Create a GitHub OAuth App (github.com/settings/developers) with callback URL
+`https://<project-ref>.supabase.co/auth/v1/callback`, then paste its Client ID and Secret into
+Supabase **Authentication → Sign In / Providers → GitHub**. Add your site URLs (and `travelplanner://**`,
+`exp://**` for phones) under **Authentication → URL Configuration → Redirect URLs**.
 
 ## Live website (GitHub Pages)
 
@@ -49,7 +52,7 @@ src/
   utils.ts                   date, time and money helpers
   theme.ts                   colours, spacing and text styles
   lib/supabase.ts            Supabase client
-  state/AuthContext.tsx      email sign-in / sign-up
+  state/AuthContext.tsx      Sign in with GitHub (via Supabase)
   state/TripsContext.tsx     trips state, loaded from and saved to Supabase
 supabase/schema.sql          database table + security policies
   components/ui.tsx          shared buttons, inputs, cards, form sheet

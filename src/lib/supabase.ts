@@ -15,7 +15,8 @@ export const supabase = createClient(url || 'https://placeholder.supabase.co', a
     storage: AsyncStorage, // keeps you signed in between launches
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    // On the web, GitHub sends you back to the site with the sign-in in the URL; pick it up from there.
+    detectSessionInUrl: Platform.OS === 'web',
   },
 });
 
