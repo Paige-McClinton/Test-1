@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { TripFormModal } from '../components/TripFormModal';
+import { confirmAction } from '../confirm';
 import { useTrips } from '../state/TripsContext';
 import { colors, radius, spacing, type } from '../theme';
 import { Trip } from '../types';
@@ -41,17 +42,10 @@ export function TripDetailScreen({ tripId, onBack }: { tripId: string; onBack: (
   const update = (fn: (t: Trip) => Trip) => updateTrip(trip.id, fn);
 
   const confirmDelete = () => {
-    Alert.alert('Delete trip?', `“${trip.name}” and everything in it will be removed. This can't be undone.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          setEditing(false);
-          deleteTrip(trip.id);
-        },
-      },
-    ]);
+    confirmAction('Delete trip?', `“${trip.name}” and everything in it will be removed. This can't be undone.`, 'Delete', () => {
+      setEditing(false);
+      deleteTrip(trip.id);
+    });
   };
 
   return (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { confirmAction } from '../../confirm';
 import { Button, Card, ChipGroup, EmptyState, Fab, FormModal, ProgressBar, TextField } from '../../components/ui';
 import { colors, radius, spacing, type } from '../../theme';
 import { PACKING_CATEGORIES, PackingCategory, PackingItem } from '../../types';
@@ -39,14 +40,9 @@ export function PackingTab({ trip, update }: TabProps) {
     update((t) => ({ ...t, packing: t.packing.map((p) => (p.id === id ? { ...p, packed: !p.packed } : p)) }));
 
   const confirmRemove = (item: PackingItem) =>
-    Alert.alert('Remove item?', `Remove “${item.name}” from your packing list?`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: () => update((t) => ({ ...t, packing: t.packing.filter((p) => p.id !== item.id) })),
-      },
-    ]);
+    confirmAction('Remove item?', `Remove “${item.name}” from your packing list?`, 'Remove', () =>
+      update((t) => ({ ...t, packing: t.packing.filter((p) => p.id !== item.id) })),
+    );
 
   const addStarterList = () =>
     update((t) => {
@@ -70,10 +66,9 @@ export function PackingTab({ trip, update }: TabProps) {
   };
 
   const resetAll = () =>
-    Alert.alert('Unpack everything?', 'This unchecks every item — handy for the trip home.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Uncheck all', onPress: () => update((t) => ({ ...t, packing: t.packing.map((p) => ({ ...p, packed: false })) })) },
-    ]);
+    confirmAction('Unpack everything?', 'This unchecks every item — handy for the trip home.', 'Uncheck all', () =>
+      update((t) => ({ ...t, packing: t.packing.map((p) => ({ ...p, packed: false })) })),
+    false);
 
   return (
     <>

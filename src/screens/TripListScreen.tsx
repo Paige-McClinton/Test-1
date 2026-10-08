@@ -4,14 +4,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { TripFormModal } from '../components/TripFormModal';
 import { Card, EmptyState, Fab, ProgressBar } from '../components/ui';
+import { useAuth } from '../state/AuthContext';
 import { useTrips } from '../state/TripsContext';
 import { colors, radius, spacing, type } from '../theme';
 import { Trip } from '../types';
 import { formatMoney, formatRange, todayISO, tripStatus } from '../utils';
 
 export function TripListScreen({ onOpenTrip }: { onOpenTrip: (id: string) => void }) {
-  const { trips, addTrip } = useTrips();
+  const { trips, addTrip, syncError, saving, flushNow, reload } = useTrips();
+  const { session, signOut } = useAuth();
   const [creating, setCreating] = useState(false);
+
+  const handleSignOut = async () => {
+    await flushNow();
+    await signOut();
+  };
 
   // Upcoming and current trips first (soonest first), then past trips (most recent first).
   const sorted = useMemo(() => {
@@ -29,8 +36,23 @@ export function TripListScreen({ onOpenTrip }: { onOpenTrip: (id: string) => voi
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.eyebrow}>Travel Planner</Text>
+            <View style={styles.headerTop}>
+              <Text style={styles.eyebrow}>Travel Planner</Text>
+              <Pressable onPress={handleSignOut} hitSlop={10} accessibilityRole="button">
+                <Text style={styles.signOut}>Sign out</Text>
+              </Pressable>
+            </View>
             <Text style={type.title}>My trips</Text>
+            <Text style={styles.account} numberOfLines={1}>
+              {session?.user.email}
+              {saving ? ' · Saving…' : ''}
+            </Text>
+            {syncError ? (
+              <Pressable onPress={reload} style={styles.errorBanner}>
+                <Text style={styles.errorText}>{syncError}</Text>
+                <Text style={styles.errorRetry}>Tap to reload</Text>
+              </Pressable>
+            ) : null}
           </View>
         }
         ListEmptyComponent={
@@ -107,6 +129,12 @@ const styles = StyleSheet.create({
   list: { padding: spacing.lg, paddingBottom: 120 },
   header: { marginBottom: spacing.lg, marginTop: spacing.sm },
   eyebrow: { ...type.label, color: colors.primary, marginBottom: 2 },
+  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  signOut: { color: colors.primary, fontWeight: '700', fontSize: 14 },
+  account: { ...type.small, marginTop: 2 },
+  errorBanner: { backgroundColor: colors.dangerSoft, borderRadius: radius.md, padding: spacing.md, marginTop: spacing.md },
+  errorText: { color: colors.danger, fontSize: 14 },
+  errorRetry: { color: colors.danger, fontWeight: '700', fontSize: 13, marginTop: 4 },
   pastCard: { opacity: 0.7 },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
   destination: { ...type.small, fontSize: 14, marginTop: 2 },
